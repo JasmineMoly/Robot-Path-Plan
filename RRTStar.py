@@ -1,6 +1,7 @@
+import math
+
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 class Node:
     def __init__(self, point):
@@ -41,13 +42,24 @@ class RRTStar3D:
         new_node.parent = from_node
         return new_node
 
-    def collision_free(self, point):
+    def collision_free(self, point1, point2):
         for obstacle in self.obstacle_list:
             obstacle_center = np.array(obstacle[0])
             obstacle_radius = obstacle[1]
-            distance = np.linalg.norm(obstacle_center - point)
-            if distance <= obstacle_radius:
+            distance = np.linalg.norm(obstacle_center - point1)
+            if np.linalg.norm(point2 - point1) == 0:
                 return False
+            else:
+                d = math.fabs(np.sum((obstacle_center - point1) * (point1 - point2))) / np.linalg.norm(point2 - point1)
+                if d > obstacle_radius:
+                    continue
+                else:
+                    if distance <= obstacle_radius+1:
+                        return False
+                    else:
+                        if np.sum((obstacle_center - point1) * (point1 - point2)) * np.sum(
+                                (obstacle_center - point2) * (point1 - point2)) < 0:
+                            return False
         return True
 
     def near_nodes(self, node):
@@ -61,7 +73,7 @@ class RRTStar3D:
         costs = []
         for idx in near_nodes:
             near_node = self.node_list[idx]
-            if self.collision_free(near_node.point) and np.linalg.norm(
+            if self.collision_free(new_node.point, near_node.point) and np.linalg.norm(
                     np.array(new_node.point) - np.array(near_node.point)) <= self.step_size:
                 cost = near_node.cost + np.linalg.norm(np.array(new_node.point) - np.array(near_node.point))
                 costs.append(cost)
@@ -76,7 +88,7 @@ class RRTStar3D:
     def rewire(self, new_node, near_nodes):
         for idx in near_nodes:
             near_node = self.node_list[idx]
-            if self.collision_free(new_node.point) and np.linalg.norm(
+            if self.collision_free(new_node.point, near_node.point) and np.linalg.norm(
                     np.array(new_node.point) - np.array(near_node.point)) <= self.step_size:
                 new_cost = new_node.cost + np.linalg.norm(np.array(new_node.point) - np.array(near_node.point))
                 if near_node.cost > new_cost:
@@ -102,7 +114,7 @@ class RRTStar3D:
             nearest_node_idx = self.nearest_node(random_point)
             nearest_node = self.node_list[nearest_node_idx]
             new_node = self.steer(nearest_node, Node(random_point))
-            if self.collision_free(new_node.point):
+            if self.collision_free(new_node.point, nearest_node.point):
                 near_nodes_idx = self.near_nodes(new_node)
                 if self.choose_parent(new_node, near_nodes_idx):
                     self.node_list.append(new_node)
@@ -111,7 +123,7 @@ class RRTStar3D:
         goal_node = None
         for node in self.node_list:
             if np.linalg.norm(np.array(node.point) - np.array(self.goal.point)) <= self.step_size:
-                if self.collision_free(node.point):
+                if self.collision_free(node.point, self.goal.point):
                     goal_node = node
                     break
 
@@ -154,7 +166,7 @@ class RRTStar3D:
 if __name__ == '__main__':
     start = [1, 1, 1]
     goal = [7, 10, 6]
-    obstacle_list = [([6, 6, 5], 1), ([4, 5, 5], 2), ([4, 11, 2], 2), ([8, 6, 4], 2)]
+    obstacle_list = [([6, 4, 5], 1), ([4, 5, 5], 2), ([4, 11, 2], 2), ([8, 6, 4], 2)]
     rrt_star = RRTStar3D(start, goal, obstacle_list, rand_area=[0, 15], step_size=0.7, max_iter=2000, search_radius=3)
     path = rrt_star.plan()
 
