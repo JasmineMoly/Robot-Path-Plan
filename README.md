@@ -2,7 +2,6 @@
 Path Planning Algorithm for 6-DOF Manipulator Applied in Medical Scenes
 # 项目名称：六自由度机械臂路径规划算法研究
 
-![示例路径](path.png)
 
 欢迎来到六自由度机械臂路径规划算法研究项目！这个项目旨在探索在医疗场景中应用的机械臂路径规划算法。我们利用RRT*（Rapidly-Exploring Random Trees）算法来规划机械臂的运动路径，以实现从起始点到目标点的安全导航。
 
@@ -35,7 +34,6 @@ Path Planning Algorithm for 6-DOF Manipulator Applied in Medical Scenes
 
 使用了一个起始点（1, 1, 1）、一个目标点（7, 10, 6）和四个障碍物。经过路径规划算法的运算，我们找到了一条从起始点到目标点的有效路径。在3D可视化图形窗口中，你可以清晰地看到起始点、目标点、障碍物和机械臂沿路径移动的过程。
 
-![示例路径](path.png)
 
 ## 注意事项
 - 确保提供的起始点和目标点在可行的工作空间范围内，并避免与障碍物发生重叠。
